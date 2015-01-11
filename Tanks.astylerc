@@ -1,0 +1,14 @@
+-A1
+
+--indent-switches
+--indent-cases
+--min-conditional-indent=0
+
+--pad-header
+--pad-oper
+
+--add-brackets
+--indent=spaces=4
+
+--align-pointer=name
+--align-reference=name
