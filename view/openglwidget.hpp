@@ -1,7 +1,11 @@
 #pragma once
 
-#include <QOpenGLWidget>
+#include <QOpenGLDebugLogger>
 #include <QOpenGLFunctions>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLWidget>
+
+#include "model3d.hpp"
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -23,6 +27,13 @@ protected:
     void mouseMoveEvent(QMouseEvent *event);
 
 private:
+    void initializeOpenGLDebugging();
+    void loadModels();
+    void prepareShaders();
+
+    std::vector<Model3D> _models3D;
+    QOpenGLShaderProgram _shaderProgram;
+    QOpenGLDebugLogger _debugLogger;
     QPoint lastMousePosition;
 
     int64_t xRot;

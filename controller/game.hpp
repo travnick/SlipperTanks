@@ -9,7 +9,8 @@ public:
     ~Game();
 
     int exec();
-
 private:
+    void setOpenGLParameters();
+
     bool isRunning;
 };
