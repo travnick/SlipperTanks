@@ -1,42 +1,47 @@
 #pragma once
 
+#include <set>
+
 #include <QOpenGLDebugLogger>
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLWidget>
 
-#include "model3d.hpp"
+#include "model/camera.hpp"
+
+class Scene;
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
 public:
-    explicit OpenGLWidget(QWidget *parent = 0, Qt::WindowFlags f = 0);
+    explicit OpenGLWidget(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
     virtual ~OpenGLWidget();
 
-    void animate()
-    {
-        xRot+=10;
-    }
-
+    void processInput();
+    void setScene(Scene *scene);
 protected:
     void initializeGL();
+    void initializeLights();
     void paintGL();
     void resizeGL(int width, int height);
 
-    void mousePressEvent(QMouseEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
     void initializeOpenGLDebugging();
-    void loadModels();
     void prepareShaders();
 
-    std::vector<Model3D> _models3D;
+    Camera _camera;
     QOpenGLShaderProgram _shaderProgram;
     QOpenGLDebugLogger _debugLogger;
-    QPoint lastMousePosition;
+    QPoint _lastMousePosition;
 
-    int64_t xRot;
-    int64_t yRot;
-    int64_t zRot;
+    QVector3D _position;
+    QVector3D _rotation;
+
+    std::set<int> _keysPressed;
+    Scene *_scene;
 };

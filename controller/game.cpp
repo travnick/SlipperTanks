@@ -1,5 +1,9 @@
+#include "model/scene.hpp"
+
 #include "game.hpp"
 #include "mainwindow.hpp"
+
+const char modelDirectory[]  = "models";
 
 Game::Game(int &argc, char **argv, int flags):
     QApplication(argc, argv, flags)
@@ -38,13 +42,18 @@ int Game::exec()
         this->isRunning = false;
     });
 
-    mainWindow.show();
+    Scene scene(modelDirectory);
+    scene.loadModels();
 
+    openGlWidget.setScene(&scene);
+
+    mainWindow.show();
     isRunning = true;
     while (isRunning)
     {
         processEvents(QEventLoop::AllEvents);
-        openGlWidget.animate();
+        openGlWidget.processInput();
+
         openGlWidget.update();
     }
 

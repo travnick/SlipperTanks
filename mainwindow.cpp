@@ -1,9 +1,7 @@
-#include <QtWidgets/QOpenGLWidget>
-
 #include "mainwindow.hpp"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent_) :
+    QMainWindow(parent_)
 {
     ui.setupUi(this);
 }
@@ -21,8 +19,8 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
-void MainWindow::closeEvent(QCloseEvent *event)
+void MainWindow::closeEvent(QCloseEvent *event_)
 {
-    QMainWindow::closeEvent(event);
+    QMainWindow::closeEvent(event_);
     emit closed();
 }
