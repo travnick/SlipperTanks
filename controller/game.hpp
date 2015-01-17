@@ -9,6 +9,7 @@ public:
     ~Game();
 
     int exec();
+
 private:
     void setOpenGLParameters();
 

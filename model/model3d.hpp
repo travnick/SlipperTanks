@@ -17,10 +17,13 @@ public:
     Model3D(Model3D &&other);
     Model3D(const Model3D &other);
 
-    ~Model3D();
+    virtual ~Model3D();
 
-    void initialize();
-    void render();
+    virtual void initialize();
+    virtual void render();
+
+protected:
+    Model3D();
 
 private:
     void loadFromFile(const std::string &filename);

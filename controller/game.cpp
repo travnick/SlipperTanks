@@ -1,6 +1,7 @@
 #include "model/scene.hpp"
 
 #include "game.hpp"
+#include "inputeventhandler.hpp"
 #include "mainwindow.hpp"
 
 const char modelDirectory[]  = "models";
@@ -42,9 +43,11 @@ int Game::exec()
         this->isRunning = false;
     });
 
+    InputEventHandler inputEventHandler;
     Scene scene(modelDirectory);
     scene.loadModels();
 
+    openGlWidget.setInputEventHandler(&inputEventHandler);
     openGlWidget.setScene(&scene);
 
     mainWindow.show();
@@ -52,7 +55,7 @@ int Game::exec()
     while (isRunning)
     {
         processEvents(QEventLoop::AllEvents);
-        openGlWidget.processInput();
+        inputEventHandler.processEvents();
 
         openGlWidget.update();
     }

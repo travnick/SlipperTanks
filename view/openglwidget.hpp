@@ -9,6 +9,7 @@
 
 #include "model/camera.hpp"
 
+class InputEventHandler;
 class Scene;
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -17,8 +18,11 @@ public:
     explicit OpenGLWidget(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
     virtual ~OpenGLWidget();
 
-    void processInput();
     void setScene(Scene *scene);
+    void setInputEventHandler(InputEventHandler *inputEventHandler);
+
+    void enableFog();
+
 protected:
     void initializeGL();
     void initializeLights();
@@ -37,11 +41,7 @@ private:
     Camera _camera;
     QOpenGLShaderProgram _shaderProgram;
     QOpenGLDebugLogger _debugLogger;
-    QPoint _lastMousePosition;
 
-    QVector3D _position;
-    QVector3D _rotation;
-
-    std::set<int> _keysPressed;
     Scene *_scene;
+    InputEventHandler *_inputEventHandler;
 };

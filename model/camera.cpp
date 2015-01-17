@@ -3,13 +3,18 @@
 #include <QtMath>
 
 #include "camera.hpp"
+#include "emptymodel3d.hpp"
 #include "model3d.hpp"
 
+const u_int16_t FOVmin = 1;
+const u_int16_t FOVmax = 180;
+
 Camera::Camera():
+    Node(EmptyModel3D::getStaticGlobalInstance()),
     _near(0),
     _frustumDepth(0),
     _far(0),
-    _ratio(0),
+    _aspectRatio(0),
     _fov(0),
     _modelAttachedTo(nullptr)
 {
@@ -17,9 +22,13 @@ Camera::Camera():
 
 void Camera::setFOV(u_int16_t fov)
 {
-    if (fov > 180)
+    if (fov > FOVmax)
     {
-        fov = 180;
+        fov = FOVmax;
+    }
+    else if (fov < FOVmin)
+    {
+        fov = FOVmin;
     }
 
     _fov = fov;
@@ -46,13 +55,25 @@ void Camera::calibrate()
     _near = focalLength;
     _far = _near + _frustumDepth;
 
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
     //glOrtho(-halfSize, +halfSize, -halfSize, +halfSize, _near, _far);
-    glFrustum(-halfSize, halfSize, -halfSize * _ratio, halfSize * _ratio, _near, _far);
+    glFrustum(-halfSize * _aspectRatio, halfSize * _aspectRatio, -halfSize, halfSize, _near, _far);
+
+    glMatrixMode(GL_MODELVIEW);
 }
 
-void Camera::alignWorldToNear() const
+void Camera::adjustWorld() const
 {
     glTranslatef(0, -_size.width() / 2.0f, -_near);
+
+    glTranslatef(-_position.x(), -_position.y(), -_position.z());
+
+    glRotatef(-_rotation.x() / 4, 1.0, 0.0, 0.0);
+    glRotatef(-_rotation.y() / 4, 0.0, 1.0, 0.0);
+    glRotatef(-_rotation.z() / 4, 0.0, 0.0, 1.0);
 }
 
 void Camera::alignToAttachedModel() const
@@ -62,9 +83,9 @@ void Camera::alignToAttachedModel() const
     }
 }
 
-void Camera::setRatio(GLfloat ratio)
+void Camera::setAspectRatio(GLfloat aspectRatio)
 {
-    _ratio = ratio;
+    _aspectRatio = aspectRatio;
 }
 
 void Camera::attachToModel(Model3D *model)
@@ -76,4 +97,3 @@ GLfloat Camera::getNear() const
 {
     return _near;
 }
-

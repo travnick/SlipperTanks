@@ -9,6 +9,15 @@
 #include "model3d.hpp"
 #include "utils/openglhelpers.hpp"
 
+Model3D::Model3D():
+    _meshes(),
+    _vertexBufferItems(),
+    _vertexArrayObject(nullptr),
+    _vertexBuffer(QOpenGLBuffer::Type::VertexBuffer),
+    gl(nullptr),
+    _isInitialized(false)
+{
+}
 
 Model3D::Model3D(const std::string &filename):
     _meshes(),
@@ -73,49 +82,50 @@ void Model3D::render()
 }
 
 void Model3D::loadFromFile(const std::string &filename)
-{    using namespace Assimp;
-     const int verticesPerFace = 3;
+{
+    using namespace Assimp;
+    const int verticesPerFace = 3;
 
-     Importer importer;
-     const aiScene *pScene = importer.ReadFile(filename,
-                                               aiProcess_Triangulate |
-                                               aiProcess_JoinIdenticalVertices);
+    Importer importer;
+    const aiScene *pScene = importer.ReadFile(filename,
+                            aiProcess_Triangulate |
+                            aiProcess_JoinIdenticalVertices);
 
-     if (!pScene)
-     {
-         qWarning() << "Couldn't load model " << filename.c_str();
-         return;
-     }
+    if (!pScene)
+    {
+        qWarning() << "Couldn't load model " << filename.c_str();
+        return;
+    }
 
-     const aiScene &scene = *pScene;
+    const aiScene &scene = *pScene;
 
-     _meshes.reserve(scene.mNumMeshes);
+    _meshes.reserve(scene.mNumMeshes);
 
-     for (uint i = 0; i < scene.mNumMeshes; ++i)
-     {
-         aiMesh &mesh = *scene.mMeshes[i];
-         const int meshSize = mesh.mNumFaces * verticesPerFace;
+    for (uint i = 0; i < scene.mNumMeshes; ++i)
+    {
+        aiMesh &mesh = *scene.mMeshes[i];
+        const int meshSize = mesh.mNumFaces * verticesPerFace;
 
-         qDebug() << mesh.mName.C_Str();
+        qDebug() << mesh.mName.C_Str();
 
-         _meshes.emplace_back(_vertexBufferItems.size(), meshSize, mesh.mMaterialIndex);
-         _vertexBufferItems.reserve(_vertexBufferItems.capacity() + meshSize);
+        _meshes.emplace_back(_vertexBufferItems.size(), meshSize, mesh.mMaterialIndex);
+        _vertexBufferItems.reserve(_vertexBufferItems.capacity() + meshSize);
 
-         for (uint f = 0; f < mesh.mNumFaces; ++f)
-         {
-             const aiFace &face = mesh.mFaces[f];
+        for (uint f = 0; f < mesh.mNumFaces; ++f)
+        {
+            const aiFace &face = mesh.mFaces[f];
 
-             for (uint k = 0; k < verticesPerFace; ++k)
-             {
-                 aiVector3D position = mesh.mVertices[face.mIndices[k]];
-                 aiVector3D normal = mesh.mNormals[face.mIndices[k]];
-                 //aiVector3D uv = mesh.mTextureCoords[0][face.mIndices[k]];
-                 aiVector3D uv;
+            for (uint k = 0; k < verticesPerFace; ++k)
+            {
+                aiVector3D position = mesh.mVertices[face.mIndices[k]];
+                aiVector3D normal = mesh.mNormals[face.mIndices[k]];
+                //aiVector3D uv = mesh.mTextureCoords[0][face.mIndices[k]];
+                aiVector3D uv;
 
-                 _vertexBufferItems.emplace_back(position, normal, uv);
-             }
-         }
-     }
+                _vertexBufferItems.emplace_back(position, normal, uv);
+            }
+        }
+    }
 }
 
 void Model3D::initialize()
