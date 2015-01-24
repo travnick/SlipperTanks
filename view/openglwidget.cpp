@@ -6,7 +6,7 @@
 #include "openglwidget.hpp"
 
 const float CameraSize = 1.f;
-const uint16_t CameraFOV = 90;
+const uint16_t CameraFOV = 60;
 const float CameraFrustumDepth = 1000.f;
 
 OpenGLWidget::OpenGLWidget(QWidget *parent_, Qt::WindowFlags f):
@@ -51,8 +51,9 @@ void OpenGLWidget::initializeGL()
     initializeOpenGLDebugging();
 
     _camera.setFOV(CameraFOV);
-    _camera.setSize(CameraSize, CameraSize);
+    _camera.setSize(SizeGL(CameraSize, CameraSize));
     _camera.setFrustumDepth(CameraFrustumDepth);
+    _camera.calibrate();
 
     glClearColor(77/256.f, 153/256.f, 228/256.f, 0.f);
 
@@ -71,10 +72,7 @@ void OpenGLWidget::initializeGL()
 
 void OpenGLWidget::resizeGL(int width_, int height_)
 {
-    const float aspectRatio = width_  / static_cast<float>(height_);
-    glViewport(0, 0, width_, height_);
-
-    _camera.setAspectRatio(aspectRatio);
+    _camera.setViewPortSize(SizeGL(width_, height_));
     _camera.calibrate();
 }
 
@@ -97,6 +95,11 @@ void OpenGLWidget::mousePressEvent(QMouseEvent *event_)
 void OpenGLWidget::mouseMoveEvent(QMouseEvent *event_)
 {
     _inputEventHandler->onMouseMoveEvent(*event_);
+}
+
+void OpenGLWidget::wheelEvent(QWheelEvent *event_)
+{
+    _inputEventHandler->onWheelEvent(*event_);
 }
 
 void OpenGLWidget::keyPressEvent(QKeyEvent *event_)

@@ -6,14 +6,15 @@
 
 class QKeyEvent;
 class QMouseEvent;
+class QWheelEvent;
 
 class Camera;
-class Node;
+class Player;
 
 class InputEventHandler
 {
 public:
-    InputEventHandler();
+    InputEventHandler(Player &player);
 
     void processEvents();
 
@@ -21,14 +22,15 @@ public:
     void onKeyReleaseEvent(QKeyEvent &event);
     void onMousePressEvent(QMouseEvent &event);
     void onMouseMoveEvent(QMouseEvent &event);
+    void onWheelEvent(QWheelEvent &event);
 
     void setCamera(Camera *camera);
-    void setPlayer(Node *player);
 
 private:
     std::set<int> _keysPressed;
     QPoint _lastMousePosition;
 
     Camera *_camera;
-    Node *_player;
+    Player &_player;
+    float _wheelRotationAngle;
 };

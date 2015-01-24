@@ -2,11 +2,12 @@
 
 #include <GL/gl.h>
 
-#include <QRect>
-
 #include "node.hpp"
+#include "size.hpp"
 
 class Model3D;
+
+typedef Size<GLfloat> SizeGL;
 
 class Camera: public Node
 {
@@ -17,22 +18,23 @@ public:
     void adjustWorld() const;
     void alignToAttachedModel() const;
 
+    void setSize(const SizeGL &size);
+    void setViewPortSize(const SizeGL &size);
     void setFOV(u_int16_t fov);
-    void setSize(GLfloat width, GLfloat height);
     void setFrustumDepth(GLfloat depth);
-    void setAspectRatio(GLfloat aspectRatio);
 
     void attachToModel(Model3D *model);
 
     GLfloat getNear() const;
+    const SizeGL &getViewPortSize() const;
 
 private:
-    QRect _size;
+    SizeGL _nearSize;
+    SizeGL _viewPortSize;
 
     GLfloat _near;
     GLfloat _frustumDepth;
     GLfloat _far;
-    GLfloat _aspectRatio;
     u_int16_t _fov;
 
     Model3D *_modelAttachedTo;

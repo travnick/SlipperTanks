@@ -13,12 +13,21 @@ Node::~Node()
 
 void Node::move(const QVector3D &diff)
 {
-    _position += diff;
+    QVector3D tmp = diff * _rotation;
+    _translation.translate(tmp);
 }
 
-void Node::rotate(const QVector3D &diff)
+void Node::rotate(float angle, const QVector3D &axis)
 {
-    _rotation += diff;
+    QVector3D rotatedAxis = axis;
+
+    //if not rotation about yaw axis then rotate vector
+    if (!qFuzzyCompare(axis.y(), 1.f))
+    {
+        rotatedAxis = rotatedAxis * _rotation;
+    }
+
+    _rotation.rotate(angle, rotatedAxis);
 }
 
 void Node::initializeModel()
@@ -28,5 +37,22 @@ void Node::initializeModel()
 
 void Node::renderModel()
 {
+    glPushMatrix();
+
+    transformGl();
+
     _model.render();
+
+    glPopMatrix();
+}
+
+const Model3D &Node::getModel() const
+{
+    return _model;
+}
+
+void Node::transformGl() const
+{
+    glMultMatrixf(_rotation.data());
+    glMultMatrixf(_translation.data());
 }

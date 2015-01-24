@@ -108,7 +108,7 @@ void Model3D::loadFromFile(const std::string &filename)
 
         qDebug() << mesh.mName.C_Str();
 
-        _meshes.emplace_back(_vertexBufferItems.size(), meshSize, mesh.mMaterialIndex);
+        _meshes.emplace_back(mesh.mName.C_Str(), _vertexBufferItems.size(), meshSize, mesh.mMaterialIndex);
         _vertexBufferItems.reserve(_vertexBufferItems.capacity() + meshSize);
 
         for (uint f = 0; f < mesh.mNumFaces; ++f)

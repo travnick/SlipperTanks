@@ -63,6 +63,10 @@ SOURCES += main.cpp\
     model/scene.cpp \
     utils/openglhelpers.cpp \
     view/openglwidget.cpp \
+    model/node.cpp \
+    model/emptymodel3d.cpp \
+    controller/inputeventhandler.cpp \
+    model/player.cpp
 
 
 HEADERS  += mainwindow.hpp \
@@ -74,7 +78,12 @@ HEADERS  += mainwindow.hpp \
     view/openglwidget.hpp \
     utils/commondefines.hpp \
     model/mesh.hpp \
-    model/vertexbufferitem.hpp
+    model/vertexbufferitem.hpp \
+    model/node.hpp \
+    model/emptymodel3d.hpp \
+    controller/inputeventhandler.hpp \
+    model/size.hpp \
+    model/player.hpp
 
 
 FORMS    += mainwindow.ui

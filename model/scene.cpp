@@ -4,10 +4,12 @@
 #include <QString>
 #include <QStringList>
 
+#include "player.hpp"
 #include "scene.hpp"
 
-Scene::Scene(const std::string &modelDirectory):
-    _modelDirectory(modelDirectory)
+Scene::Scene(const std::string &modelDirectory, Player &player):
+    _modelDirectory(modelDirectory),
+    _player(player)
 {
     initializeFilesWatcher();
 }
@@ -25,7 +27,7 @@ void Scene::initializeFilesWatcher()
         qDebug() << "file watch: " << path;
         std::string filePath = path.toStdString();
 
-        this->_models3D.erase(_models3D.find(filePath));
+        this->removeModel(filePath);
 
         if (QFile::exists(path))
         {
@@ -40,7 +42,7 @@ void Scene::initializeFilesWatcher()
 
         if (!QFile::exists(path))
         {
-            this->_models3D.clear();
+            this->removeModels();
         }
         else
         {
@@ -63,20 +65,78 @@ void Scene::loadModels()
         _filesystemWatcher.addPath(modelDirectory.filePath(entry));
         loadModel(modelDirectory.filePath(entry).toStdString());
     }
+
+    auto found = _models3D.find(_player.getRequiredModelName());
+    if (found != _models3D.end())
+    {
+        _player.setAttachedNode(&createNodeForModel("player", found->second));
+    }
 }
 
 void Scene::initializeModels()
 {
-    for (auto &model : _models3D)
+    for (auto &node : _nodes)
     {
-        model.second.initialize();
+        node.second.initializeModel();
     }
 }
 
 void Scene::render()
 {
-    for (auto &model : _models3D)
+    for (auto &node : _nodes)
     {
-        model.second.render();
+        node.second.renderModel();
+    }
+}
+
+void Scene::removeModels()
+{
+    _player.setAttachedNode(nullptr);
+
+    _nodes.clear();
+    _models3D.clear();
+}
+
+void Scene::createNodeForModel(const std::string &nodeName, const std::string &modelName)
+{
+    auto found = _models3D.find(modelName);
+    if (found != _models3D.end())
+    {
+        createNodeForModel(nodeName, found->second);
+    }
+}
+
+Node &Scene::createNodeForModel(const std::string &nodeName, Model3D &model)
+{
+    auto pair = _nodes.emplace(nodeName, model);
+
+    return pair.first->second;
+}
+
+void Scene::removeModel(const std::string &fileName)
+{
+    auto modelFound = _models3D.find(fileName);
+    if (modelFound != _models3D.end())
+    {
+        if (&modelFound->second == &_player.getAttachedNode().getModel())
+        {
+            _player.setAttachedNode(nullptr);
+        }
+
+        removeAllInstancesOfModel(modelFound->second);
+
+        _models3D.erase(modelFound);
+    }
+}
+
+void Scene::removeAllInstancesOfModel(const Model3D &model)
+{
+    auto end = _nodes.end();
+    for (auto it = _nodes.begin(); it != end; ++it)
+    {
+        if (&it->second.getModel() == &model)
+        {
+            it = _nodes.erase(it);
+        }
     }
 }
