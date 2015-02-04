@@ -10,7 +10,7 @@ public:
     Node(Model3D &model);
     ~Node();
 
-    void move(const QVector3D &diff);
+    void move(const QVector3D &moveDirection, float seconds);
     void rotate(float angle, const QVector3D &axis);
 
     void initializeModel();
@@ -18,11 +18,18 @@ public:
 
     const Model3D &getModel() const;
 
+    void setSpeed(float speed);
+    QMatrix4x4 getModelMatrix() const;
+    const QVector3D &getPosition() const;
+
 protected:
+    Model3D &_model;
+
+private:
     void transformGl() const;
 
-    QMatrix4x4 _translation;
     QMatrix4x4 _rotation;
+    QVector3D _translation;
 
-    Model3D &_model;
+    float _speed;
 };

@@ -47,17 +47,17 @@ void InputEventHandler::onKeyReleaseEvent(QKeyEvent &event)
     _keysPressed.erase(event.key());
 }
 
-void InputEventHandler::processEvents()
+void InputEventHandler::processEvents(float secondsElapsed)
 {
-    const int speed = 1;
-    QVector3D cameraPositionDiff;
-    QVector3D playerPositionDiff;
+    const int DirectionValue = 1;
+    QVector3D cameraMoveDirection;
+    QVector3D playerMoveDirection;
 
     if (_wheelRotationAngle > 1 || _wheelRotationAngle < -1)
     {
-        cameraPositionDiff.setZ(cameraPositionDiff.z() + _wheelRotationAngle/180.f);
+        cameraMoveDirection.setZ(cameraMoveDirection.z() + _wheelRotationAngle / 180.f);
         _wheelRotationAngle = 0;
-        _camera->move(cameraPositionDiff);
+        _camera->move(cameraMoveDirection, secondsElapsed);
     }
 
     if (_keysPressed.empty())
@@ -70,29 +70,35 @@ void InputEventHandler::processEvents()
         switch (key)
         {
             case Qt::Key_Up:
-                cameraPositionDiff.setZ(speed);
+                cameraMoveDirection.setZ(DirectionValue);
                 break;
             case Qt::Key_Down:
-                cameraPositionDiff.setZ(-speed);
+                cameraMoveDirection.setZ(-DirectionValue);
                 break;
             case Qt::Key_Left:
-                cameraPositionDiff.setX(speed);
+                cameraMoveDirection.setX(DirectionValue);
                 break;
             case Qt::Key_Right:
-                cameraPositionDiff.setX(-speed);
+                cameraMoveDirection.setX(-DirectionValue);
                 break;
 
             case Qt::Key_W:
-                playerPositionDiff.setZ(speed);
+                playerMoveDirection.setZ(DirectionValue);
                 break;
             case Qt::Key_S:
-                playerPositionDiff.setZ(-speed);
+                playerMoveDirection.setZ(-DirectionValue);
                 break;
             case Qt::Key_A:
-                playerPositionDiff.setX(speed);
+                playerMoveDirection.setX(DirectionValue);
                 break;
             case Qt::Key_D:
-                playerPositionDiff.setX(-speed);
+                playerMoveDirection.setX(-DirectionValue);
+                break;
+            case Qt::Key_E:
+                playerMoveDirection.setY(DirectionValue);
+                break;
+            case Qt::Key_Q:
+                playerMoveDirection.setY(-DirectionValue);
                 break;
 
             default:
@@ -100,8 +106,11 @@ void InputEventHandler::processEvents()
         }
     }
 
-    _camera->move(cameraPositionDiff);
-    _player.move(playerPositionDiff);
+    cameraMoveDirection.normalize();
+    playerMoveDirection.normalize();
+
+    _camera->move(cameraMoveDirection, secondsElapsed);
+    _player.move(playerMoveDirection, secondsElapsed);
 }
 
 void InputEventHandler::setCamera(Camera *camera)

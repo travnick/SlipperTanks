@@ -16,7 +16,7 @@ class InputEventHandler
 public:
     InputEventHandler(Player &player);
 
-    void processEvents();
+    void processEvents(float secondsElapsed);
 
     void onKeyPressEvent(QKeyEvent &event);
     void onKeyReleaseEvent(QKeyEvent &event);

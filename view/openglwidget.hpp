@@ -1,7 +1,10 @@
 #pragma once
 
+#include <map>
+#include <memory>
 #include <set>
 
+#include <QFileSystemWatcher>
 #include <QOpenGLDebugLogger>
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
@@ -10,6 +13,7 @@
 #include "model/camera.hpp"
 
 class InputEventHandler;
+class Player;
 class Scene;
 
 class OpenGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -20,12 +24,10 @@ public:
 
     void setScene(Scene *scene);
     void setInputEventHandler(InputEventHandler *inputEventHandler);
-
-    void enableFog();
+    void attachCameraToPlayer(Player &player);
 
 protected:
     void initializeGL();
-    void initializeLights();
     void paintGL();
     void resizeGL(int width, int height);
 
@@ -42,6 +44,8 @@ private:
     Camera _camera;
     QOpenGLShaderProgram _shaderProgram;
     QOpenGLDebugLogger _debugLogger;
+    QFileSystemWatcher _filesystemWatcher;
+    std::map<std::string, std::unique_ptr<QOpenGLShader>> _shaders;
 
     Scene *_scene;
     InputEventHandler *_inputEventHandler;

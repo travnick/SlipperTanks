@@ -26,12 +26,17 @@ const Node &Player::getAttachedNode() const
     return *_attachedNode;
 }
 
-void Player::move(const QVector3D &diff)
+void Player::move(const QVector3D &moveDirection, float secondsElapsed)
 {
-    _attachedNode->move(diff);
+    _attachedNode->move(moveDirection, secondsElapsed);
 }
 
 void Player::rotate(float angle, const QVector3D &axis)
 {
     _attachedNode->rotate(angle, axis);
+}
+
+void Player::setSpeed(float speed)
+{
+    _attachedNode->setSpeed(speed);
 }

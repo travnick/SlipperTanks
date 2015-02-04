@@ -3,20 +3,26 @@
 #include <QtMath>
 
 #include "camera.hpp"
+#include "cameraconfig.hpp"
 #include "emptymodel3d.hpp"
 #include "model3d.hpp"
 
+namespace
+{
 const u_int16_t FOVmin = 1;
 const u_int16_t FOVmax = 180;
+}
 
-Camera::Camera():
+Camera::Camera(const CameraConfig &config):
     Node(EmptyModel3D::getStaticGlobalInstance()),
+    _nearSize(config._nearSize),
     _near(0),
-    _frustumDepth(0),
-    _far(0),
-    _fov(0),
-    _modelAttachedTo(nullptr)
+    _frustumDepth(config._frustumDepth),
+    _far(_near + _frustumDepth),
+    _fov(config.FOV),
+    _nodeAttachedTo(nullptr)
 {
+    setSpeed(config._speed);
 }
 
 void Camera::setFOV(u_int16_t fov)
@@ -45,33 +51,27 @@ void Camera::setFrustumDepth(GLfloat depth)
 
 void Camera::calibrate()
 {
-    const GLfloat halfSize = _nearSize._width / 2.0f;
+    const GLfloat halfwidth = _nearSize._width / 2.0f;
+    const GLfloat halfHeight = _nearSize._height / 2.0f;
 
-    GLfloat angle = (180 - _fov) / 2.0f;
-    GLfloat focalLength = std::tan(qDegreesToRadians(angle)) * halfSize;
+    const GLfloat angle = static_cast<float>(180 - _fov) / 2.0f;
+    const GLfloat focalLength = std::tan(qDegreesToRadians(angle)) * halfwidth;
     _near = focalLength;
     _far = _near + _frustumDepth;
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-    auto aspectRatio = _viewPortSize.getAspectRatio();
-    //glOrtho(-halfSize, +halfSize, -halfSize, +halfSize, _near, _far);
-    glFrustum(-halfSize * aspectRatio, halfSize * aspectRatio, -halfSize, halfSize, _near, _far);
-
-    glMatrixMode(GL_MODELVIEW);
+    _projectionMatrix.setToIdentity();
+    _projectionMatrix.frustum(-halfwidth, halfwidth, -halfHeight, halfHeight, _near, _far);
 
     glViewport(0, 0, _viewPortSize._width, _viewPortSize._height);
 }
 
 void Camera::adjustWorld() const
 {
-    transformGl();
 }
 
 void Camera::alignToAttachedModel() const
 {
-    if (_modelAttachedTo != nullptr)
+    if (_nodeAttachedTo != nullptr)
     {
     }
 }
@@ -79,11 +79,22 @@ void Camera::alignToAttachedModel() const
 void Camera::setViewPortSize(const SizeGL &size)
 {
     _viewPortSize = size;
+    _nearSize.setAspectRatio(_viewPortSize.getAspectRatio());
 }
 
-void Camera::attachToModel(Model3D *model)
+void Camera::attachToNode(const Node *node)
 {
-    _modelAttachedTo = model;
+    _nodeAttachedTo = node;
+}
+
+QMatrix4x4 Camera::getViewProjectionMatrix() const
+{
+    return _projectionMatrix * getModelMatrix();
+}
+
+QMatrix4x4 Camera::getViewMatrix() const
+{
+    return getModelMatrix();
 }
 
 GLfloat Camera::getNear() const

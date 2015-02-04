@@ -26,10 +26,10 @@ void Game::setOpenGLParameters()
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
     qDebug() << "default format: " << format;
 
-    //    format.setVersion(2, 1);
-    format.setOption(QSurfaceFormat::DeprecatedFunctions, true);
+    format.setVersion(3, 3);
+    format.setOption(QSurfaceFormat::DeprecatedFunctions, false);
     format.setOption(QSurfaceFormat::DebugContext);
-    format.setProfile(QSurfaceFormat::CompatibilityProfile);
+    format.setProfile(QSurfaceFormat::CoreProfile);
     format.setSwapInterval(1);
 
     QSurfaceFormat::setDefaultFormat(format);
@@ -70,6 +70,8 @@ int Game::exec()
     scene.createNodeForModel("ground", "models/ground.obj");
     scene.createNodeForModel("static_tank", "models/tank.obj");
 
+    player.setSpeed(5);
+
     openGlWidget.setInputEventHandler(&inputEventHandler);
     openGlWidget.setScene(&scene);
 
@@ -82,6 +84,8 @@ int Game::exec()
     mainWindow.show();
     isRunning = true;
     fpsUpdateTimer.start();
+
+    qint64 frameTime = 0;
     while (isRunning)
     {
         fpsTimer.restart();
@@ -93,7 +97,8 @@ int Game::exec()
 
         qint64 inputEventHandlerTime =  measureNsec([&]()
         {
-            inputEventHandler.processEvents();
+            float secondsElapsed = frameTime / static_cast<float>(std::nano::den);
+            inputEventHandler.processEvents(secondsElapsed);
         });
 
         qint64 openglTime =  measureNsec([&]()
@@ -103,7 +108,7 @@ int Game::exec()
 
         if (fpsUpdateTimer.elapsed() >= std::milli::den)
         {
-            qint64 frameTime = fpsTimer.nsecsElapsed();
+            frameTime = fpsTimer.nsecsElapsed();
             qint64 fps = std::nano::den / frameTime;
 
             statusBar.showMessage(statusBarText

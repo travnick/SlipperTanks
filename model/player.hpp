@@ -17,8 +17,10 @@ public:
 
     const Node &getAttachedNode() const;
 
-    void move(const QVector3D &diff);
+    void move(const QVector3D &moveDirection, float seconds);
     void rotate(float angle, const QVector3D &axis);
+
+    void setSpeed(float speed);
 
 private:
     std::string _requiredModelName;

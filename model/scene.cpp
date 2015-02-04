@@ -1,11 +1,15 @@
 #include <QDebug>
 
 #include <QDir>
+#include <QOpenGLShaderProgram>
 #include <QString>
 #include <QStringList>
 
+#include "emptymodel3d.hpp"
 #include "player.hpp"
 #include "scene.hpp"
+
+Node dummyNode(EmptyModel3D::getStaticGlobalInstance());
 
 Scene::Scene(const std::string &modelDirectory, Player &player):
     _modelDirectory(modelDirectory),
@@ -22,7 +26,7 @@ void Scene::initializeFilesWatcher()
 {
     _filesystemWatcher.addPath(QString::fromStdString(_modelDirectory));
 
-    QObject::connect(&_filesystemWatcher, &QFileSystemWatcher::fileChanged,[this](const QString path)
+    QObject::connect(&_filesystemWatcher, &QFileSystemWatcher::fileChanged, [this](const QString &path)
     {
         qDebug() << "file watch: " << path;
         std::string filePath = path.toStdString();
@@ -35,10 +39,9 @@ void Scene::initializeFilesWatcher()
         }
     });
 
-    QObject::connect(&_filesystemWatcher, &QFileSystemWatcher::directoryChanged,[this](const QString path)
+    QObject::connect(&_filesystemWatcher, &QFileSystemWatcher::directoryChanged, [this](const QString &path)
     {
         qDebug() << "dir watch: " << path;
-        std::string filePath = path.toStdString();
 
         if (!QFile::exists(path))
         {
@@ -81,11 +84,20 @@ void Scene::initializeModels()
     }
 }
 
-void Scene::render()
+void Scene::render(QOpenGLShaderProgram &shaderProgram, const QMatrix4x4 &viewProjectionMatrix)
 {
-    for (auto &node : _nodes)
+//    shaderProgram.setUniformValue(10, viewProjectionMatrix);
+
+    for (auto &pair : _nodes)
     {
-        node.second.renderModel();
+        Node &node = pair.second;
+        QMatrix4x4 modelMatrix = node.getModelMatrix();
+        QMatrix4x4 modelViewProjectionMatrix = viewProjectionMatrix * modelMatrix;
+
+        shaderProgram.setUniformValue(11, modelMatrix);
+        shaderProgram.setUniformValue(12, modelViewProjectionMatrix);
+
+        node.renderModel();
     }
 }
 

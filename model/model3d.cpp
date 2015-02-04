@@ -73,10 +73,10 @@ void Model3D::render()
 
     _vertexArrayObject.bind();
 
-    for (const Mesh &mesh : _meshes)
-    {
-        gl->glDrawArrays(GL_TRIANGLES, mesh._startVertexIndex, mesh._vertexCount);
-    }
+    gl->glMultiDrawArrays(GL_TRIANGLES,
+                          _meshes._startVertexIndex.data(),
+                          _meshes._vertexCount.data(),
+                          _meshes.size());
 
     _vertexArrayObject.release();
 }
@@ -108,7 +108,7 @@ void Model3D::loadFromFile(const std::string &filename)
 
         qDebug() << mesh.mName.C_Str();
 
-        _meshes.emplace_back(mesh.mName.C_Str(), _vertexBufferItems.size(), meshSize, mesh.mMaterialIndex);
+        _meshes.addNext(mesh.mName.C_Str(), _vertexBufferItems.size(), meshSize, mesh.mMaterialIndex);
         _vertexBufferItems.reserve(_vertexBufferItems.capacity() + meshSize);
 
         for (uint f = 0; f < mesh.mNumFaces; ++f)
@@ -139,7 +139,8 @@ void Model3D::initialize()
         return;
     }
 
-    gl = QOpenGLContext::currentContext()->functions();
+    gl = QOpenGLContext::currentContext()->versionFunctions<std::remove_pointer<decltype(gl)>::type>();
+    gl->initializeOpenGLFunctions();
 
     prepareVertexArrayObject();
 
@@ -168,13 +169,13 @@ void Model3D::prepareVertexArrayObject()
                               sizeof(VertexBufferItem),
                               offsetof(VertexBufferItem, _position));
 
-    enableVertaxAttribPointer(1,
-                              sizeof(VertexBufferItem::_uv) / sizeof(GLfloat),
-                              GL_FLOAT, GL_FALSE,
-                              sizeof(VertexBufferItem),
-                              offsetof(VertexBufferItem, _uv));
+//    enableVertaxAttribPointer(2,
+//                              sizeof(VertexBufferItem::_uv) / sizeof(GLfloat),
+//                              GL_FLOAT, GL_FALSE,
+//                              sizeof(VertexBufferItem),
+//                              offsetof(VertexBufferItem, _uv));
 
-    enableVertaxAttribPointer(2,
+    enableVertaxAttribPointer(1,
                               sizeof(VertexBufferItem::_normal) / sizeof(GLfloat),
                               GL_FLOAT, GL_FALSE,
                               sizeof(VertexBufferItem),

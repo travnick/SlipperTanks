@@ -4,7 +4,8 @@
 #include <vector>
 
 #include <QOpenGLBuffer>
-#include <QOpenGLFunctions>
+#include <QOpenGLFunctions_2_1>
+#include <QOpenGLFunctions_3_3_Core>
 #include <QOpenGLVertexArrayObject>
 
 #include "mesh.hpp"
@@ -30,12 +31,12 @@ private:
 
     void prepareVertexArrayObject();
 
-    std::vector<Mesh> _meshes;
+    Meshes _meshes;
     std::vector<VertexBufferItem> _vertexBufferItems;
 
     QOpenGLVertexArrayObject _vertexArrayObject;
     QOpenGLBuffer _vertexBuffer;
-    QOpenGLFunctions *gl;
+    QOpenGLFunctions_3_3_Core *gl;
 
     bool _isInitialized;
 };

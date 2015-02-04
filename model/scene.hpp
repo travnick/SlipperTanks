@@ -5,6 +5,8 @@
 #include "model3d.hpp"
 #include "node.hpp"
 
+class QOpenGLShaderProgram;
+
 class Player;
 
 class Scene
@@ -19,7 +21,7 @@ public:
     void loadModels();
     void initializeModels();
 
-    void render();
+    void render(QOpenGLShaderProgram &shaderProgram, const QMatrix4x4 &viewProjectionMatrix);
 
 private:
     void initializeFilesWatcher();

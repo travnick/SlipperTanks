@@ -2,33 +2,38 @@
 
 #include <GL/gl.h>
 
+#include <QMatrix4x4>
+
+#include "cameraconfig.hpp"
 #include "node.hpp"
 #include "size.hpp"
 
 class Model3D;
 
-typedef Size<GLfloat> SizeGL;
-
 class Camera: public Node
 {
 public:
-    Camera();
+    Camera(const CameraConfig &config = CameraConfig());
 
     void calibrate();
     void adjustWorld() const;
     void alignToAttachedModel() const;
 
+    void setConfig(const CameraConfig &config);
     void setSize(const SizeGL &size);
     void setViewPortSize(const SizeGL &size);
     void setFOV(u_int16_t fov);
     void setFrustumDepth(GLfloat depth);
 
-    void attachToModel(Model3D *model);
+    void attachToNode(const Node *node);
 
+    QMatrix4x4 getViewProjectionMatrix() const;
+    QMatrix4x4 getViewMatrix() const;
     GLfloat getNear() const;
     const SizeGL &getViewPortSize() const;
 
 private:
+    QMatrix4x4 _projectionMatrix;
     SizeGL _nearSize;
     SizeGL _viewPortSize;
 
@@ -37,5 +42,5 @@ private:
     GLfloat _far;
     u_int16_t _fov;
 
-    Model3D *_modelAttachedTo;
+    const Node *_nodeAttachedTo;
 };

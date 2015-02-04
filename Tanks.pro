@@ -83,7 +83,8 @@ HEADERS  += mainwindow.hpp \
     model/emptymodel3d.hpp \
     controller/inputeventhandler.hpp \
     model/size.hpp \
-    model/player.hpp
+    model/player.hpp \
+    model/cameraconfig.hpp
 
 
 FORMS    += mainwindow.ui

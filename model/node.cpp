@@ -3,7 +3,8 @@
 #include "node.hpp"
 
 Node::Node(Model3D &model):
-    _model(model)
+    _model(model),
+    _speed(0)
 {
 }
 
@@ -11,10 +12,10 @@ Node::~Node()
 {
 }
 
-void Node::move(const QVector3D &diff)
+void Node::move(const QVector3D &moveDirection, float secondsElapsed)
 {
-    QVector3D tmp = diff * _rotation;
-    _translation.translate(tmp);
+    QVector3D tmp = moveDirection * _rotation * _speed * secondsElapsed;
+    _translation += tmp;
 }
 
 void Node::rotate(float angle, const QVector3D &axis)
@@ -37,13 +38,7 @@ void Node::initializeModel()
 
 void Node::renderModel()
 {
-    glPushMatrix();
-
-    transformGl();
-
     _model.render();
-
-    glPopMatrix();
 }
 
 const Model3D &Node::getModel() const
@@ -51,8 +46,27 @@ const Model3D &Node::getModel() const
     return _model;
 }
 
+void Node::setSpeed(float speed)
+{
+    _speed = speed;
+}
+
 void Node::transformGl() const
 {
     glMultMatrixf(_rotation.data());
-    glMultMatrixf(_translation.data());
+}
+
+QMatrix4x4 Node::getModelMatrix() const
+{
+    QMatrix4x4 modelMatrix;
+
+    modelMatrix *= _rotation;
+    modelMatrix.translate(_translation);
+
+    return modelMatrix;
+}
+
+const QVector3D &Node::getPosition() const
+{
+    return _translation;
 }

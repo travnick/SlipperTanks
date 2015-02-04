@@ -17,6 +17,13 @@ struct Size
         return aspectRatio;
     }
 
+    void setAspectRatio(const T &aspectRatio)
+    {
+        _width = _height * aspectRatio;
+    }
+
     T _width;
     T _height;
 };
+
+typedef Size<GLfloat> SizeGL;
