@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QMouseEvent>
 
-#include "controller/inputeventhandler.hpp"
+#include "controller/inputeventmanager.hpp"
 #include "model/player.hpp"
 #include "model/scene.hpp"
 #include "openglwidget.hpp"
@@ -52,34 +52,34 @@ void OpenGLWidget::paintGL()
 //    _camera.alignToAttachedModel();
     _shaderProgram.bind();
 
-    _shaderProgram.setUniformValue(20, _camera.getPosition());
+    _shaderProgram.setUniformValue(20, _camera.getTranslation());
 
     _scene->render(_shaderProgram, _camera.getViewProjectionMatrix());
 }
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *event_)
 {
-    _inputEventHandler->onMousePressEvent(*event_);
+    _inputEventManager->onMousePressEvent(*event_);
 }
 
 void OpenGLWidget::mouseMoveEvent(QMouseEvent *event_)
 {
-    _inputEventHandler->onMouseMoveEvent(*event_);
+    _inputEventManager->onMouseMoveEvent(*event_);
 }
 
 void OpenGLWidget::wheelEvent(QWheelEvent *event_)
 {
-    _inputEventHandler->onWheelEvent(*event_);
+    _inputEventManager->onWheelEvent(*event_);
 }
 
 void OpenGLWidget::keyPressEvent(QKeyEvent *event_)
 {
-    _inputEventHandler->onKeyPressEvent(*event_);
+    _inputEventManager->onKeyPressEvent(*event_);
 }
 
 void OpenGLWidget::keyReleaseEvent(QKeyEvent *event_)
 {
-    _inputEventHandler->onKeyReleaseEvent(*event_);
+    _inputEventManager->onKeyReleaseEvent(*event_);
 }
 
 void OpenGLWidget::initializeOpenGLDebugging()
@@ -158,10 +158,10 @@ void OpenGLWidget::setScene(Scene *scene)
     _scene = scene;
 }
 
-void OpenGLWidget::setInputEventHandler(InputEventHandler *inputEventHandler)
+void OpenGLWidget::setInputEventHandler(InputEventManager *inputEventHandler)
 {
-    _inputEventHandler = inputEventHandler;
-    _inputEventHandler->setCamera(&_camera);
+    _inputEventManager = inputEventHandler;
+    _camera.setInputEventManager(_inputEventManager);
 }
 
 void OpenGLWidget::attachCameraToPlayer(Player &player)

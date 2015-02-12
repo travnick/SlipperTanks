@@ -15,6 +15,8 @@ class Camera: public Node
 public:
     Camera(const CameraConfig &config = CameraConfig());
 
+    void move(const QVector3D &moveDirection, float seconds);
+
     void calibrate();
     void adjustWorld() const;
     void alignToAttachedModel() const;
@@ -33,6 +35,8 @@ public:
     const SizeGL &getViewPortSize() const;
 
 private:
+    void handleInputEvents(const InputEvents & inputEvents, float secondsElapsed);
+
     QMatrix4x4 _projectionMatrix;
     SizeGL _nearSize;
     SizeGL _viewPortSize;

@@ -7,7 +7,7 @@
 #include "model/player.hpp"
 
 #include "game.hpp"
-#include "inputeventhandler.hpp"
+#include "inputeventmanager.hpp"
 #include "mainwindow.hpp"
 
 const char modelDirectory[]  = "models";
@@ -51,6 +51,10 @@ int Game::exec()
     QElapsedTimer fpsTimer;
     QElapsedTimer fpsUpdateTimer;
 
+    InputEventManager inputEventManager;
+    Player player;
+    Scene scene(modelDirectory, player);
+
     setOpenGLParameters();
 
     MainWindow mainWindow;
@@ -63,23 +67,22 @@ int Game::exec()
         this->isRunning = false;
     });
 
-    Player player;
-    InputEventHandler inputEventHandler(player);
-    Scene scene(modelDirectory, player);
     scene.loadModels();
     scene.createNodeForModel("ground", "models/ground.obj");
     scene.createNodeForModel("static_tank", "models/tank.obj");
 
+    player.getAttachedNode().setInputEventManager(&inputEventManager);
     player.setSpeed(5);
 
-    openGlWidget.setInputEventHandler(&inputEventHandler);
+    openGlWidget.setInputEventHandler(&inputEventManager);
     openGlWidget.setScene(&scene);
+    openGlWidget.attachCameraToPlayer(player);
 
     QString statusBarText("%1 FPS."
-                          " Frame %2 micro sec."
+                          " Frame: %2 micro sec."
                           " OpenGL: %3 nsec."
                           " QT events: %4 micro sec."
-                          " Input events %5 nsec.");
+                          " Input events: %5 nsec.");
 
     mainWindow.show();
     isRunning = true;
@@ -90,18 +93,18 @@ int Game::exec()
     {
         fpsTimer.restart();
 
-        qint64 qtEventsTime =  measureNsec([&]()
+        qint64 qtEventsTime = measureNsec([&]()
         {
             processEvents(QEventLoop::AllEvents);
         });
 
-        qint64 inputEventHandlerTime =  measureNsec([&]()
+        qint64 inputEventHandlerTime = measureNsec([&]()
         {
             float secondsElapsed = frameTime / static_cast<float>(std::nano::den);
-            inputEventHandler.processEvents(secondsElapsed);
+            inputEventManager.processEvents(secondsElapsed);
         });
 
-        qint64 openglTime =  measureNsec([&]()
+        qint64 openglTime = measureNsec([&]()
         {
             openGlWidget.update();
         });

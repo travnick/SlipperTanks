@@ -12,7 +12,7 @@
 
 #include "model/camera.hpp"
 
-class InputEventHandler;
+class InputEventManager;
 class Player;
 class Scene;
 
@@ -23,7 +23,7 @@ public:
     virtual ~OpenGLWidget();
 
     void setScene(Scene *scene);
-    void setInputEventHandler(InputEventHandler *inputEventHandler);
+    void setInputEventManager(InputEventManager *inputEventManager);
     void attachCameraToPlayer(Player &player);
 
 protected:
@@ -48,5 +48,5 @@ private:
     std::map<std::string, std::unique_ptr<QOpenGLShader>> _shaders;
 
     Scene *_scene;
-    InputEventHandler *_inputEventHandler;
+    InputEventManager *_inputEventManager;
 };

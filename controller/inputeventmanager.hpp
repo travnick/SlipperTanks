@@ -1,8 +1,10 @@
 #pragma once
 
-#include <set>
-
 #include <QPoint>
+
+#include "utils/commontypedefs.hpp"
+
+#include "inputevents.hpp"
 
 class QKeyEvent;
 class QMouseEvent;
@@ -11,10 +13,10 @@ class QWheelEvent;
 class Camera;
 class Player;
 
-class InputEventHandler
+class InputEventManager
 {
 public:
-    InputEventHandler(Player &player);
+    InputEventManager();
 
     void processEvents(float secondsElapsed);
 
@@ -24,13 +26,12 @@ public:
     void onMouseMoveEvent(QMouseEvent &event);
     void onWheelEvent(QWheelEvent &event);
 
-    void setCamera(Camera *camera);
+    void addInputEventsHandler(const InputEventsHandler &inputEventHandler);
+    void removeInputEventsHandler(const InputEventsHandler &inputEventHandler);
 
 private:
-    std::set<int> _keysPressed;
-    QPoint _lastMousePosition;
+    InputEvents _inputEvents;
+    InputEventsHandlers _inputEventsHandlers;
 
-    Camera *_camera;
     Player &_player;
-    float _wheelRotationAngle;
 };

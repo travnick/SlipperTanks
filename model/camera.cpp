@@ -2,6 +2,8 @@
 
 #include <QtMath>
 
+#include "controller/inputevents.hpp"
+
 #include "camera.hpp"
 #include "cameraconfig.hpp"
 #include "emptymodel3d.hpp"
@@ -22,7 +24,17 @@ Camera::Camera(const CameraConfig &config):
     _fov(config.FOV),
     _nodeAttachedTo(nullptr)
 {
+    using namespace std::placeholders;
+
     setSpeed(config._speed);
+
+    _inputEventsHandler = std::bind(&Camera::handleInputEvents, this, _1, _2);
+}
+
+void Camera::move(const QVector3D &moveDirection, float secondsElapsed)
+{
+    QVector3D tmp = moveDirection * _rotation * (_speed * secondsElapsed);
+    _translation += tmp;
 }
 
 void Camera::setFOV(u_int16_t fov)
@@ -85,16 +97,50 @@ void Camera::setViewPortSize(const SizeGL &size)
 void Camera::attachToNode(const Node *node)
 {
     _nodeAttachedTo = node;
+//    if (_nodeAttachedTo != nullptr)
+//    {
+//        _inputEventsHandler = nullptr;
+//    }
+//    else
+//    {
+//        using namespace std::placeholders;
+
+//        _inputEventsHandler = std::bind(&Camera::handleInputEvents, this, _1, _2);
+//    }
 }
 
 QMatrix4x4 Camera::getViewProjectionMatrix() const
 {
-    return _projectionMatrix * getModelMatrix();
+    return _projectionMatrix * getViewMatrix();
 }
 
 QMatrix4x4 Camera::getViewMatrix() const
 {
-    return getModelMatrix();
+    QMatrix4x4 modelMatrix;
+
+    if (_nodeAttachedTo != nullptr)
+    {
+        QVector3D moveup(0, -3, 0);
+        QMatrix4x4 rotation180Y;
+        rotation180Y.rotate(180, 0, 1);
+
+        QVector3D translation = _nodeAttachedTo->getTranslation();
+        translation.setY(-translation.y());
+
+//        moveup = _nodeAttachedTo->getRotation() * moveup;
+
+        modelMatrix *= _rotation;
+        modelMatrix.translate(translation);
+        modelMatrix *= rotation180Y;
+        modelMatrix.translate(moveup);
+    }
+    else
+    {
+        modelMatrix *= _rotation;
+        modelMatrix.translate(_translation);
+    }
+
+    return modelMatrix;
 }
 
 GLfloat Camera::getNear() const
@@ -105,4 +151,58 @@ GLfloat Camera::getNear() const
 const SizeGL &Camera::getViewPortSize() const
 {
     return _viewPortSize;
+}
+
+void Camera::handleInputEvents(const InputEvents &inputEvents, float secondsElapsed)
+{
+    static const QVector3D Xaxis(1, 0, 0);
+    static const QVector3D Yaxis(0, 1, 0);
+    const int DirectionValue = 1;
+
+    QVector3D moveDirection;
+
+    QPoint positionDiff = inputEvents.getMousePositionDiff();
+    float yRotation = positionDiff.x() / 3.6f;
+    float xRotation = positionDiff.y() / 3.6f;
+
+    this->rotate(-xRotation, Xaxis);
+    this->rotate(-yRotation, Yaxis);
+
+    if (inputEvents._wheelRotationAngle > 1 || inputEvents._wheelRotationAngle < -1)
+    {
+        moveDirection.setZ(moveDirection.z() + inputEvents._wheelRotationAngle / 180.f);
+        this->move(moveDirection, secondsElapsed);
+    }
+
+    if (inputEvents._keysPressed.empty())
+    {
+        return;
+    }
+
+    for (int key : inputEvents._keysPressed)
+    {
+        switch (key)
+        {
+
+            case Qt::Key_Up:
+                moveDirection.setZ(DirectionValue);
+                break;
+            case Qt::Key_Down:
+                moveDirection.setZ(-DirectionValue);
+                break;
+            case Qt::Key_Left:
+                moveDirection.setX(DirectionValue);
+                break;
+            case Qt::Key_Right:
+                moveDirection.setX(-DirectionValue);
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    moveDirection.normalize();
+
+    move(moveDirection, secondsElapsed);
 }
