@@ -10,7 +10,8 @@
 
 OpenGLWidget::OpenGLWidget(QWidget *parent_, Qt::WindowFlags f):
     QOpenGLWidget(parent_, f),
-    _scene(nullptr)
+    _scene(nullptr),
+    _wireFrameMode(false)
 {
 }
 
@@ -30,8 +31,8 @@ void OpenGLWidget::initializeGL()
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glLineWidth(1);
+    glCullFace(GL_FRONT);
+    glFrontFace(GL_CW);
     glShadeModel(GL_SMOOTH);
 
     prepareShaders();
@@ -48,6 +49,7 @@ void OpenGLWidget::resizeGL(int width_, int height_)
 void OpenGLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    setPolygonDrawMode();
 
 //    _camera.alignToAttachedModel();
     _shaderProgram.bind();
@@ -158,13 +160,31 @@ void OpenGLWidget::setScene(Scene *scene)
     _scene = scene;
 }
 
-void OpenGLWidget::setInputEventHandler(InputEventManager *inputEventHandler)
+void OpenGLWidget::setInputEventManager(InputEventManager *inputEventManager)
 {
-    _inputEventManager = inputEventHandler;
+    _inputEventManager = inputEventManager;
     _camera.setInputEventManager(_inputEventManager);
 }
 
 void OpenGLWidget::attachCameraToPlayer(Player &player)
 {
     _camera.attachToNode(&player.getAttachedNode());
+}
+
+void OpenGLWidget::setPolygonDrawMode()
+{
+    if (_wireFrameMode)
+    {
+        glLineWidth(1);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+}
+
+void OpenGLWidget::toggleWireFrameMode(bool wireframe)
+{
+    _wireFrameMode = wireframe;
 }

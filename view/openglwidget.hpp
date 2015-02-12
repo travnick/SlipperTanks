@@ -26,6 +26,9 @@ public:
     void setInputEventManager(InputEventManager *inputEventManager);
     void attachCameraToPlayer(Player &player);
 
+public slots:
+    void toggleWireFrameMode(bool wireframe);
+
 protected:
     void initializeGL();
     void paintGL();
@@ -40,6 +43,7 @@ protected:
 private:
     void initializeOpenGLDebugging();
     void prepareShaders();
+    void setPolygonDrawMode();
 
     Camera _camera;
     QOpenGLShaderProgram _shaderProgram;
@@ -49,4 +53,5 @@ private:
 
     Scene *_scene;
     InputEventManager *_inputEventManager;
+    bool _wireFrameMode;
 };

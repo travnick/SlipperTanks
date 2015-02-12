@@ -65,8 +65,10 @@ SOURCES += main.cpp\
     view/openglwidget.cpp \
     model/node.cpp \
     model/emptymodel3d.cpp \
-    controller/inputeventhandler.cpp \
-    model/player.cpp
+    model/player.cpp \
+    controller/inputeventmanager.cpp \
+    controller/inputevents.cpp \
+    controller/inputeventshandler.cpp
 
 
 HEADERS  += mainwindow.hpp \
@@ -81,10 +83,13 @@ HEADERS  += mainwindow.hpp \
     model/vertexbufferitem.hpp \
     model/node.hpp \
     model/emptymodel3d.hpp \
-    controller/inputeventhandler.hpp \
     model/size.hpp \
     model/player.hpp \
-    model/cameraconfig.hpp
+    model/cameraconfig.hpp \
+    utils/commontypedefs.hpp \
+    controller/inputeventmanager.hpp \
+    controller/inputevents.hpp \
+    controller/inputeventshandler.hpp
 
 
 FORMS    += mainwindow.ui

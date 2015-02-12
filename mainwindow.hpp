@@ -27,6 +27,11 @@ protected:
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *event) override;
 
+private slots:
+    void on_actionWireframe_mode_toggled(bool arg1);
+
+    void on_actionClose_triggered();
+
 private:
     Ui::MainWindow ui;
 };

@@ -24,3 +24,13 @@ void MainWindow::closeEvent(QCloseEvent *event_)
     QMainWindow::closeEvent(event_);
     emit closed();
 }
+
+void MainWindow::on_actionWireframe_mode_toggled(bool wireframe)
+{
+    ui.openGLWidget->toggleWireFrameMode(wireframe);
+}
+
+void MainWindow::on_actionClose_triggered()
+{
+    close();
+}

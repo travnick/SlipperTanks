@@ -74,7 +74,7 @@ int Game::exec()
     player.getAttachedNode().setInputEventManager(&inputEventManager);
     player.setSpeed(5);
 
-    openGlWidget.setInputEventHandler(&inputEventManager);
+    openGlWidget.setInputEventManager(&inputEventManager);
     openGlWidget.setScene(&scene);
     openGlWidget.attachCameraToPlayer(player);
 
