@@ -12,7 +12,7 @@
 //varying vec4 qt_TexCoord0;
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 fwdNormal;
-layout(location = 2) in vec3 lighPosition;
+layout(location = 2) in vec3 lightPosition;
 layout(location = 20) uniform vec3 cameraPosition;
 
 out vec3 fragColor;
@@ -31,23 +31,24 @@ float LightIntensity = 1;
 float LightRange = 100;
 float LightRange2 = LightRange * LightRange;
 
+vec3 cameraPos = cameraPosition;
 vec3 normal = normalize(fwdNormal);
-vec3 lightToPosition = normalize(position - lighPosition);
-vec3 cameraToPosition = normalize(-cameraPosition - position);
+vec3 lightToPosition = normalize(position - lightPosition);
+vec3 cameraToPosition = normalize(position - cameraPos);
+vec3 lightToCamera = normalize(cameraPos - lightPosition);
 
 float distanceIntensity = getLightIntensity();
 // <-- variables
 
 void main()
 {
-    float floatToVec3 = 0;
-
     vec3 resultColor = vec3(0, 0, 0);
-    vec3 ambientColor = vec3(0, 0, 0);
+    vec3 ambientColor = vec3(0.1, 0.1, 0.1);
 
     vec3 diffuseColor = getDiffuseColor();
     vec3 specularColor = getSpecularColor();
 
+//    resultColor += ambientColor;
     resultColor += diffuseColor;
     resultColor += specularColor;
     resultColor = saturate(resultColor);
@@ -57,13 +58,13 @@ void main()
 
 float getLightIntensity()
 {
-    float distanceIntensity = distance(position, lighPosition);
-    distanceIntensity = saturate(1 - distanceIntensity * distanceIntensity / LightRange2);
-    distanceIntensity *= distanceIntensity;
+    float intensity = distance(position, lightPosition);
+    intensity = saturate(1 - intensity * intensity / LightRange2);
+    intensity *= intensity;
 
-    //    distanceIntensity = 1 / (1.0 + LightA * distanceIntensity + LightB * distanceIntensity * distanceIntensity);
+    //    intensity = 1 / (1.0 + LightA * intensity + LightB * intensity * intensity);
 
-    return distanceIntensity;
+    return intensity;
 }
 
 vec3 getDiffuseColor()
@@ -89,14 +90,16 @@ vec3 getSpecularColor()
     vec3 specularColor = vec3(0, 0, 0);
 
     vec3 MatSpecularColor = vec3(.7, .7, .0);
-    float MatSpecularPower = 0.002;
+    float MatSpecularHardness = 500;
 
-    vec3 reflected = reflect(lightToPosition, normal);
+    vec3 reflectedLight = reflect(lightToPosition, normal);
 
-    float rayLigthRayAngleCos = dot(cameraToPosition, reflected);
-    rayLigthRayAngleCos = saturate(rayLigthRayAngleCos);
+    float cameraPosition_ReflectedLightToPosition_Dot = -dot(cameraToPosition, reflectedLight);
+    cameraPosition_ReflectedLightToPosition_Dot = saturate(cameraPosition_ReflectedLightToPosition_Dot);
 
-    float specularPower = pow(rayLigthRayAngleCos, 1/MatSpecularPower);
+    float angle = cameraPosition_ReflectedLightToPosition_Dot;
+
+    float specularPower = pow(angle, MatSpecularHardness);
 
     specularColor = MatSpecularColor * LightColor;
     specularColor *= specularPower;

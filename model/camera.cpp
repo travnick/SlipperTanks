@@ -77,17 +77,6 @@ void Camera::calibrate()
     glViewport(0, 0, _viewPortSize._width, _viewPortSize._height);
 }
 
-void Camera::adjustWorld() const
-{
-}
-
-void Camera::alignToAttachedModel() const
-{
-    if (_nodeAttachedTo != nullptr)
-    {
-    }
-}
-
 void Camera::setViewPortSize(const SizeGL &size)
 {
     _viewPortSize = size;
@@ -97,16 +86,10 @@ void Camera::setViewPortSize(const SizeGL &size)
 void Camera::attachToNode(const Node *node)
 {
     _nodeAttachedTo = node;
-//    if (_nodeAttachedTo != nullptr)
-//    {
-//        _inputEventsHandler = nullptr;
-//    }
-//    else
-//    {
-//        using namespace std::placeholders;
 
-//        _inputEventsHandler = std::bind(&Camera::handleInputEvents, this, _1, _2);
-//    }
+    _attachedNodeTranslation = QVector3D(0, -3, 0);
+    _attachedNodeRotation.setToIdentity();
+    _attachedNodeRotation.rotate(180, 0, 1);
 }
 
 QMatrix4x4 Camera::getViewProjectionMatrix() const
@@ -120,19 +103,13 @@ QMatrix4x4 Camera::getViewMatrix() const
 
     if (_nodeAttachedTo != nullptr)
     {
-        QVector3D moveup(0, -3, 0);
-        QMatrix4x4 rotation180Y;
-        rotation180Y.rotate(180, 0, 1);
-
         QVector3D translation = _nodeAttachedTo->getTranslation();
         translation.setY(-translation.y());
 
-//        moveup = _nodeAttachedTo->getRotation() * moveup;
-
         modelMatrix *= _rotation;
         modelMatrix.translate(translation);
-        modelMatrix *= rotation180Y;
-        modelMatrix.translate(moveup);
+        modelMatrix *= _attachedNodeRotation;
+        modelMatrix.translate(_attachedNodeTranslation);
     }
     else
     {
@@ -151,6 +128,18 @@ GLfloat Camera::getNear() const
 const SizeGL &Camera::getViewPortSize() const
 {
     return _viewPortSize;
+}
+
+QVector3D Camera::getTranslation() const
+{
+    if (_nodeAttachedTo != nullptr)
+    {
+        return _nodeAttachedTo->getTranslation() - _attachedNodeTranslation;
+    }
+    else
+    {
+        return _translation;
+    }
 }
 
 void Camera::handleInputEvents(const InputEvents &inputEvents, float secondsElapsed)
@@ -183,7 +172,6 @@ void Camera::handleInputEvents(const InputEvents &inputEvents, float secondsElap
     {
         switch (key)
         {
-
             case Qt::Key_Up:
                 moveDirection.setZ(DirectionValue);
                 break;

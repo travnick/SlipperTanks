@@ -16,7 +16,7 @@ layout(location = 1) in vec3 normal;
 //layout(location = 10) uniform mat4 viewProjectionMatrix;
 layout(location = 11) uniform mat4 modelMatrix;
 layout(location = 12) uniform mat4 modelViewProjectionMatrix;
-//layout(location = 11) uniform vec3 cameraPosition;
+//layout(location = 20) uniform vec3 cameraPosition;
 //varying vec4 qt_TexCoord0;
 
 //uniform mat4 projection;
@@ -29,12 +29,13 @@ layout(location = 1) out vec3 fwdNormal;
 //layout(location = 1) out vec3 cameraPosition;
 layout(location = 2) out vec3 fwdLightPosition;
 
+vec4 lightPosition = vec4(0, 4, 4, 0);
+
 void main()
 {
-    vec4 lighPosition = vec4(0, 15, 5, 1);
     gl_Position = modelViewProjectionMatrix * vec4(position, 1);
 
-    fwdNormal = normal;
+    fwdNormal = (modelMatrix * vec4(normal, 0)).xyz;
     fwdPosition = (modelMatrix * vec4(position, 1)).xyz;
-    fwdLightPosition = lighPosition.xyz;
+    fwdLightPosition = lightPosition.xyz;
 }

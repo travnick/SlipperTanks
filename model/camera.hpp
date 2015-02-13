@@ -18,8 +18,6 @@ public:
     void move(const QVector3D &moveDirection, float seconds);
 
     void calibrate();
-    void adjustWorld() const;
-    void alignToAttachedModel() const;
 
     void setConfig(const CameraConfig &config);
     void setSize(const SizeGL &size);
@@ -34,10 +32,14 @@ public:
     GLfloat getNear() const;
     const SizeGL &getViewPortSize() const;
 
+    QVector3D getTranslation() const;
+
 private:
     void handleInputEvents(const InputEvents & inputEvents, float secondsElapsed);
 
     QMatrix4x4 _projectionMatrix;
+    QMatrix4x4 _attachedNodeRotation;
+    QVector3D _attachedNodeTranslation;
     SizeGL _nearSize;
     SizeGL _viewPortSize;
 

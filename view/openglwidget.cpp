@@ -51,7 +51,6 @@ void OpenGLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     setPolygonDrawMode();
 
-//    _camera.alignToAttachedModel();
     _shaderProgram.bind();
 
     _shaderProgram.setUniformValue(20, _camera.getTranslation());
