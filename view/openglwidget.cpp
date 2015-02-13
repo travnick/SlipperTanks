@@ -1,3 +1,4 @@
+#include <ratio>
 #include <utility>
 
 #include <QDebug>
@@ -54,6 +55,7 @@ void OpenGLWidget::paintGL()
     _shaderProgram.bind();
 
     _shaderProgram.setUniformValue(20, _camera.getTranslation());
+    _shaderProgram.setUniformValue(30, static_cast<float>(_msecElapsed) / std::milli::den);
 
     _scene->render(_shaderProgram, _camera.getViewProjectionMatrix());
 }
@@ -168,6 +170,11 @@ void OpenGLWidget::setInputEventManager(InputEventManager *inputEventManager)
 void OpenGLWidget::attachCameraToPlayer(Player &player)
 {
     _camera.attachToNode(&player.getAttachedNode());
+}
+
+void OpenGLWidget::setTime(int64_t msecElapsed)
+{
+    _msecElapsed = msecElapsed;
 }
 
 void OpenGLWidget::setPolygonDrawMode()

@@ -26,6 +26,8 @@ public:
     void setInputEventManager(InputEventManager *inputEventManager);
     void attachCameraToPlayer(Player &player);
 
+    void setTime(int64_t msecElapsed);
+
 public slots:
     void toggleWireFrameMode(bool wireframe);
 
@@ -50,6 +52,8 @@ private:
     QOpenGLDebugLogger _debugLogger;
     QFileSystemWatcher _filesystemWatcher;
     std::map<std::string, std::unique_ptr<QOpenGLShader>> _shaders;
+
+    int64_t _msecElapsed;
 
     Scene *_scene;
     InputEventManager *_inputEventManager;

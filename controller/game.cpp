@@ -48,6 +48,7 @@ qint64 measureNsec(std::function<void()> function)
 
 int Game::exec()
 {
+    QElapsedTimer gameTimer;
     QElapsedTimer fpsTimer;
     QElapsedTimer fpsUpdateTimer;
 
@@ -87,6 +88,7 @@ int Game::exec()
     mainWindow.show();
     isRunning = true;
     fpsUpdateTimer.start();
+    gameTimer.start();
 
     qint64 frameTime = 0;
     while (isRunning)
@@ -103,6 +105,8 @@ int Game::exec()
             float secondsElapsed = frameTime / static_cast<float>(std::nano::den);
             inputEventManager.processEvents(secondsElapsed);
         });
+
+        openGlWidget.setTime(gameTimer.elapsed());
 
         qint64 openglTime = measureNsec([&]()
         {

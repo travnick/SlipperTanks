@@ -17,6 +17,7 @@ layout(location = 1) in vec3 normal;
 layout(location = 11) uniform mat4 modelMatrix;
 layout(location = 12) uniform mat4 modelViewProjectionMatrix;
 //layout(location = 20) uniform vec3 cameraPosition;
+layout(location = 30) uniform float secElapsed;
 //varying vec4 qt_TexCoord0;
 
 //uniform mat4 projection;
@@ -29,7 +30,8 @@ layout(location = 1) out vec3 fwdNormal;
 //layout(location = 1) out vec3 cameraPosition;
 layout(location = 2) out vec3 fwdLightPosition;
 
-vec4 lightPosition = vec4(0, 4, 4, 0);
+float lightRadius = 10;
+vec4 lightPosition = vec4(lightRadius * cos(secElapsed), 10, lightRadius * sin(secElapsed), 0);
 
 void main()
 {

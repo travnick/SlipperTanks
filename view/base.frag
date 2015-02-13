@@ -6,7 +6,6 @@
 #extension GL_ARB_explicit_uniform_location : enable
 
 #define saturate(a) clamp(a, 0, 1)
-#define saturateNegative(a) clamp(a, 0, 1000000000)
 
 //uniform sampler2D qt_Texture0;
 //varying vec4 qt_TexCoord0;
@@ -14,6 +13,7 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 fwdNormal;
 layout(location = 2) in vec3 lightPosition;
 layout(location = 20) uniform vec3 cameraPosition;
+layout(location = 30) uniform float secElapsed;
 
 out vec3 fragColor;
 //varying vec3 fwdNormal;
